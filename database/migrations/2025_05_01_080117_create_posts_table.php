@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('body');
             $table->boolean('is_published');
             $table->date('publish_date');
-            $table->date('meta_description');
+            $table->string('meta_description');
+            $table->json('tags');
             $table->timestamps();
         });
     }
