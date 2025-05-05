@@ -17,9 +17,10 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('body');
             $table->boolean('is_published');
-            $table->date('publish_date');
+            $table->date('publish_date')->nullable();
             $table->string('meta_description');
-            $table->json('tags');
+            $table->json('tags')->nullable();
+            $table->json('keywords')->nullable();
             $table->timestamps();
         });
     }

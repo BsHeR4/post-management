@@ -3,13 +3,12 @@
 namespace App\Http\Requests;
 
 use App\Actions\PreparePostInput;
+use App\Rules\MaxKeywords;
 use App\Rules\PublishDateRule;
 use App\Rules\SlugFormatRule;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 
 class StorePostRequest extends FormRequest
@@ -37,28 +36,20 @@ class StorePostRequest extends FormRequest
             'is_published' => 'boolean',
             'meta_description' => 'required|string|max:255',
             'tags' => 'nullable|array',
-            'tags.*' => 'string',
-
+            'tags.*' => 'string|max:20',
+            'keywords' => ['nullable', 'array', new MaxKeywords(6)],
+            'keywords.*' => 'string|max:30',
         ];
     }
 
     public function messages()
     {
         return [
-            'title.required' => 'the post title should not be empty, please add the post title!',
-            'title.max' => 'the title is too long!',
-
-            'slug.max' => 'the slug is too long!',
-            'slug.unique' => 'the slug already used please try another one',
-
-            'meta_description.required' => 'the meta description should not be empty, please add the meta description!',
-            'meta_description.max' => 'the meta description is too long!',
-
-            'publish_date.date' => 'the publish date should be only date format',
-
-            'body.required' => 'the body post should not be empty, please add the body post!',
-
-            'tags.array' => 'tags should contain a list of values',
+            'required' => 'the :attribute should not be empty, please add the :attribute!',
+            'max' => 'the :attribute is too long!',
+            'unique' => ':attribute already used please try another one',
+            'date' => ':attribute should be only date format',
+            'array' => ':attribute should contain a list of values',
         ];
     }
 
@@ -69,9 +60,16 @@ class StorePostRequest extends FormRequest
             'body' => 'post body',
             'publish_date' => 'publish date',
             'meta_description' => 'meta description',
+            'slug' => 'slug',
+            'tags' => 'tags',
+            'keywords' => 'keywords',
         ];
     }
 
+    /**
+     * this method prepare the values of `slug` and `is_published` fields
+     * using the PreparePostInput action
+     */
     protected function prepareForValidation()
     {
         $this->merge(array_merge(
@@ -90,6 +88,9 @@ class StorePostRequest extends FormRequest
         ));
     }
 
+    /**
+     * if the validation failed it return a json response
+     */
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([

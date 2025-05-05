@@ -21,6 +21,7 @@ class PostResource extends JsonResource
             'publish_date' => $this->publish_date,
             'meta_description' => $this->meta_description,
             'tags' => $this->tags,
+            'keywords' => $this->keywords,
         ];
     }
 }

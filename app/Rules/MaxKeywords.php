@@ -2,12 +2,17 @@
 
 namespace App\Rules;
 
-use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-class PublishDateRule implements ValidationRule
+class MaxKeywords implements ValidationRule
 {
+    protected $max;
+
+    public function __construct($max = 5)
+    {
+        $this->max = $max;
+    }
     /**
      * Run the validation rule.
      *
@@ -15,11 +20,7 @@ class PublishDateRule implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $publishDate = Carbon::parse($value)->startOfDay();
-        $today = Carbon::now()->startOfDay();
-
-        if ($publishDate->lt($today)) {
-            $fail("The publish date must be today or a future date");
-        }
+        if (!(is_array($value) && count($value) <= $this->max))
+            $fail("keywords can not be more than {$this->max}");
     }
 }
